@@ -7,40 +7,40 @@
 /**
  * Implements hool_menu().
  */
-function og_share_content_content_menu() {
+function og_share_content_menu() {
   $items = array();
 
-  $items['og_share_content_content/share/%node/%'] = array(
+  $items['og_share_content/share/%node/%'] = array(
     'title' => 'Share whith your communities',
     'description' => 'Allow share a content in your communities',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('og_share_content_content_share_form', 2, 3),
+    'page arguments' => array('og_share_content_share_form', 2, 3),
     'access arguments' => array('share og content'),
-    'file' => 'og_share_content_content.forms.inc',
+    'file' => 'og_share_content.forms.inc',
   );
 
-  $items['admin/config/group/og_share_content_content'] = array(
+  $items['admin/config/group/og_share_content'] = array(
     'title' => 'OG share',
     'description' => 'Config Organic groups share settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('og_share_content_content_admin_form'),
-    'access arguments' => array('config og_share_content_content'),
-    'file' => 'og_share_content_content.admin.inc',
+    'page arguments' => array('og_share_content_admin_form'),
+    'access arguments' => array('config og_share_content'),
+    'file' => 'og_share_content.admin.inc',
   );
 
   return $items;
 }
 
-function og_share_content_content_permission() {
+function og_share_content_permission() {
   $permissions = array();
 
-  $permissions['config og_share_content_content'] = array(
+  $permissions['config og_share_content'] = array(
     'title' => t('Configure OG share module'),
   );
   $permissions['share og content'] = array(
     'title' => t('Share og content'),
   );
-  $permissions['og_share_content_content_access_public_og_content'] = array(
+  $permissions['og_share_content_access_public_og_content'] = array(
     'title' => t('Access to public og content'),
   );
 
@@ -50,14 +50,14 @@ function og_share_content_content_permission() {
 /**
  * Implements hook_modal_paths
  */
-function og_share_content_content_modal_paths() {
+function og_share_content_modal_paths() {
   $paths = array();
 
-  $paths['og_share_content_content/share/%node/%'] = array(
+  $paths['og_share_content/share/%node/%'] = array(
     'style' => 'modal-share',
     'reload' => TRUE,
   );
-  $paths['ode/og_share_content_content/share/%ode_light_node'] = array(
+  $paths['ode/og_share_content/share/%ode_light_node'] = array(
     'style' => 'modal-share',
     'reload' => TRUE,
   );
@@ -67,7 +67,7 @@ function og_share_content_content_modal_paths() {
 /**
  * Implements hook_modal_styles().
  */
-function og_share_content_content_modal_styles() {
+function og_share_content_modal_styles() {
   $styles = array();
 
   $styles['modal-share'] = array(
@@ -80,8 +80,8 @@ function og_share_content_content_modal_styles() {
 /**
  * Implements hook_modal_styles_alter().
  */
-function og_share_content_content_modal_styles_alter(&$styles) {
-  ctools_add_js('ag_modal_windows', 'og_share_content_content', 'js/CTools');
+function og_share_content_modal_styles_alter(&$styles) {
+  ctools_add_js('ag_modal_windows', 'og_share_content', 'js/CTools');
   foreach ($styles as $style => &$value) {
     $value += array(
       'modalTheme' => 'CToolsModalAgrega2',
@@ -92,16 +92,16 @@ function og_share_content_content_modal_styles_alter(&$styles) {
 /**
  * Implements hook_entity_view().
  */
-function og_share_content_content_entity_view($entity, $type, $view_mode, $langcode) {
-  $og_share_content_content_contents = variable_get('og_share_content_content_allowed_contents', array());
+function og_share_content_entity_view($entity, $type, $view_mode, $langcode) {
+  $og_share_content_contents = variable_get('og_share_content_allowed_contents', array());
 
-  if (empty($og_share_content_content_contents)) {
+  if (empty($og_share_content_contents)) {
     return;
   }
 
-  $og_share_content_content_view_modes = variable_get('og_share_content_content_allowed_view_modes', array());
+  $og_share_content_view_modes = variable_get('og_share_content_allowed_view_modes', array());
   if ($type == 'node') {
-    if (in_array($view_mode, $og_share_content_content_view_modes, TRUE) &&  in_array($entity->type, $og_share_content_contents, TRUE)) {
+    if (in_array($view_mode, $og_share_content_view_modes, TRUE) &&  in_array($entity->type, $og_share_contents, TRUE)) {
       // Only show the link if the user clicked in "Share in other communities" field:
       $w_entity = entity_metadata_wrapper('node', $entity);
       if ($w_entity->field_question_share->value() == TRUE) {
@@ -196,8 +196,8 @@ function og_share_content_node_access_records($node) {
   $grants = array();
 
   // Get the content types configured for this:
-  $og_share_content_contents = variable_get('og_share_content_allowed_contents', array());
-  if (!empty($og_share_content_contents) and in_array($node->type, $og_share_content_contents, TRUE)) {
+  $og_share_contents = variable_get('og_share_content_allowed_contents', array());
+  if (!empty($og_share_contents) and in_array($node->type, $og_share_contents, TRUE)) {
     $wrapper = entity_metadata_wrapper('node', $node);
     /* Assert that content has default access behaviour to avoit conflicts with public or private content. */
     $access_field = !empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT;
