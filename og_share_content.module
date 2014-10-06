@@ -7,40 +7,40 @@
 /**
  * Implements hool_menu().
  */
-function og_share_menu() {
+function og_share_content_content_menu() {
   $items = array();
 
-  $items['og_share/share/%node/%'] = array(
+  $items['og_share_content_content/share/%node/%'] = array(
     'title' => 'Share whith your communities',
     'description' => 'Allow share a content in your communities',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('og_share_share_form', 2, 3),
+    'page arguments' => array('og_share_content_content_share_form', 2, 3),
     'access arguments' => array('share og content'),
-    'file' => 'og_share.forms.inc',
+    'file' => 'og_share_content_content.forms.inc',
   );
 
-  $items['admin/config/group/og_share'] = array(
+  $items['admin/config/group/og_share_content_content'] = array(
     'title' => 'OG share',
     'description' => 'Config Organic groups share settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('og_share_admin_form'),
-    'access arguments' => array('config og_share'),
-    'file' => 'og_share.admin.inc',
+    'page arguments' => array('og_share_content_content_admin_form'),
+    'access arguments' => array('config og_share_content_content'),
+    'file' => 'og_share_content_content.admin.inc',
   );
 
   return $items;
 }
 
-function og_share_permission() {
+function og_share_content_content_permission() {
   $permissions = array();
 
-  $permissions['config og_share'] = array(
+  $permissions['config og_share_content_content'] = array(
     'title' => t('Configure OG share module'),
   );
   $permissions['share og content'] = array(
     'title' => t('Share og content'),
   );
-  $permissions['og_share_access_public_og_content'] = array(
+  $permissions['og_share_content_content_access_public_og_content'] = array(
     'title' => t('Access to public og content'),
   );
 
@@ -50,14 +50,14 @@ function og_share_permission() {
 /**
  * Implements hook_modal_paths
  */
-function og_share_modal_paths() {
+function og_share_content_content_modal_paths() {
   $paths = array();
 
-  $paths['og_share/share/%node/%'] = array(
+  $paths['og_share_content_content/share/%node/%'] = array(
     'style' => 'modal-share',
     'reload' => TRUE,
   );
-  $paths['ode/og_share/share/%ode_light_node'] = array(
+  $paths['ode/og_share_content_content/share/%ode_light_node'] = array(
     'style' => 'modal-share',
     'reload' => TRUE,
   );
@@ -67,7 +67,7 @@ function og_share_modal_paths() {
 /**
  * Implements hook_modal_styles().
  */
-function og_share_modal_styles() {
+function og_share_content_content_modal_styles() {
   $styles = array();
 
   $styles['modal-share'] = array(
@@ -80,8 +80,8 @@ function og_share_modal_styles() {
 /**
  * Implements hook_modal_styles_alter().
  */
-function og_share_modal_styles_alter(&$styles) {
-  ctools_add_js('ag_modal_windows', 'og_share', 'js/CTools');
+function og_share_content_content_modal_styles_alter(&$styles) {
+  ctools_add_js('ag_modal_windows', 'og_share_content_content', 'js/CTools');
   foreach ($styles as $style => &$value) {
     $value += array(
       'modalTheme' => 'CToolsModalAgrega2',
@@ -92,20 +92,20 @@ function og_share_modal_styles_alter(&$styles) {
 /**
  * Implements hook_entity_view().
  */
-function og_share_entity_view($entity, $type, $view_mode, $langcode) {
-  $og_share_contents = variable_get('og_share_allowed_contents', array());
+function og_share_content_content_entity_view($entity, $type, $view_mode, $langcode) {
+  $og_share_content_content_contents = variable_get('og_share_content_content_allowed_contents', array());
 
-  if (empty($og_share_contents)) {
+  if (empty($og_share_content_content_contents)) {
     return;
   }
 
-  $og_share_view_modes = variable_get('og_share_allowed_view_modes', array());
+  $og_share_content_content_view_modes = variable_get('og_share_content_content_allowed_view_modes', array());
   if ($type == 'node') {
-    if (in_array($view_mode, $og_share_view_modes, TRUE) &&  in_array($entity->type, $og_share_contents, TRUE)) {
+    if (in_array($view_mode, $og_share_content_content_view_modes, TRUE) &&  in_array($entity->type, $og_share_content_contents, TRUE)) {
       // Only show the link if the user clicked in "Share in other communities" field:
       $w_entity = entity_metadata_wrapper('node', $entity);
       if ($w_entity->field_question_share->value() == TRUE) {
-        $entity->content['og_share'] = _og_share_get_render_link($entity->nid, $type);
+        $entity->content['og_share_content'] = _og_share_content_get_render_link($entity->nid, $type);
       }
     }
   }
@@ -114,12 +114,12 @@ function og_share_entity_view($entity, $type, $view_mode, $langcode) {
 /**
  * Implements hook_entity_view_alter().
  */
-function og_share_entity_view_alter(&$build, $type) {
+function og_share_content_entity_view_alter(&$build, $type) {
 
   if ($type === 'node' && $build['#view_mode'] === 'teaser' && $group = og_context()) {
     // Son nodos, cargamos la informacion de sus compartidos, si la hubera.
     // Pillamos si el contenido ha sido compartido en esta comunidad ($group)
-    $shared_info = og_share_get_shares_info($build['#node']->nid, $group['gid']);
+    $shared_info = og_share_content_get_shares_info($build['#node']->nid, $group['gid']);
     if ($shared_info) {
       // Sustituimos los datos para reflejar quien es el que ha compartido:
       // Ustituimos el name del author:
@@ -143,7 +143,7 @@ function og_share_entity_view_alter(&$build, $type) {
  * Return a rendereable array of OG share link
  * @return [description]
  */
-function _og_share_get_render_link($entity_id, $type) {
+function _og_share_content_get_render_link($entity_id, $type) {
   $render = array();
 
   if (user_access('share og content')) {
@@ -151,7 +151,7 @@ function _og_share_get_render_link($entity_id, $type) {
       '#prefix' => '<div class="share-modal">',
       '#theme' => 'link',
       '#text' => t('Share in your communities'),
-      '#path' => 'og_share/share/' . $entity_id . '/' . $type,
+      '#path' => 'og_share_content/share/' . $entity_id . '/' . $type,
       '#options' => array(
         'attributes' => array(
           'title' => t('Share this content'),
@@ -169,15 +169,15 @@ function _og_share_get_render_link($entity_id, $type) {
 /**
  * Implements hook_node_grants().
  */
-function og_share_node_grants($account, $op) {
+function og_share_content_node_grants($account, $op) {
   if ($op !== 'view') {
     return;
   }
 
   $grants = array();
 
-  if (user_access('og_share_access_public_og_content')) {
-    $grants['og_share'][] = 0;
+  if (user_access('og_share_content_access_public_og_content')) {
+    $grants['og_share_content'][] = 0;
   }
 
   return $grants;
@@ -187,7 +187,7 @@ function og_share_node_grants($account, $op) {
 /**
  * Implements hook_node_access_records().
  */
-function og_share_node_access_records($node) {
+function og_share_content_node_access_records($node) {
   if (empty($node->status)) {
     // Node is unpublished, so we don't allow every group member to see
     // it.
@@ -196,8 +196,8 @@ function og_share_node_access_records($node) {
   $grants = array();
 
   // Get the content types configured for this:
-  $og_share_contents = variable_get('og_share_allowed_contents', array());
-  if (!empty($og_share_contents) and in_array($node->type, $og_share_contents, TRUE)) {
+  $og_share_content_contents = variable_get('og_share_content_allowed_contents', array());
+  if (!empty($og_share_content_contents) and in_array($node->type, $og_share_content_contents, TRUE)) {
     $wrapper = entity_metadata_wrapper('node', $node);
     /* Assert that content has default access behaviour to avoit conflicts with public or private content. */
     $access_field = !empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT;
@@ -227,7 +227,7 @@ function og_share_node_access_records($node) {
       if ($has_public) {
         // The content is in a public group, we set the grant:
         $grants[] = array(
-          'realm' => 'og_share',
+          'realm' => 'og_share_content',
           'gid' => 0,
           'grant_view' => 1,
           'grant_update' => 0,
@@ -248,7 +248,7 @@ function og_share_node_access_records($node) {
  * @brief Retrive an array of groups where the current user is member
  * @return Array keyed by entity_id  with Entities values.
  */
-function _og_share_get_user_groups_options($entity_to_share = NULL) {
+function _og_share_content_get_user_groups_options($entity_to_share = NULL) {
   global $user;
 
   $user_groups_ids = og_get_groups_by_user($user, 'node');
@@ -273,7 +273,7 @@ function _og_share_get_user_groups_options($entity_to_share = NULL) {
 /**
  * Retrieve the info form recomendator table
  */
-function og_share_get_shares_info($nid, $gid = NULL) {
+function og_share_content_get_shares_info($nid, $gid = NULL) {
   $query =  'SELECT rsc.timestamp as timestamp, rsc.uid as uid, rsc.gid as gid, rsc.nid as nid ';
   $query .= 'FROM {recommendations_shared_content} rsc ';
   $query .= 'WHERE rsc.nid IN (:nid) ';
