@@ -1,6 +1,5 @@
-name = Organic Groups Share content
-description = Provides a action for sahre content in Og groups where a user is member.
+name = Organic Groups share content
+description = Provides a inteface for share content in Og groups where a user is member.
 package = Organic Groups
 core = "7.x"
-dependencies[] = ctools_automodal
-configure = admin/config/group/og_share
+configure = admin/config/group/og_share_content
